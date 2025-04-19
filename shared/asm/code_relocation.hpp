@@ -123,7 +123,7 @@ namespace xxed
 			// Get a list of used registers.
 			//
 			uint32_t   used_reg_mask = 0;
-			xed::reg_t used_reg_repl[ 16 ] = {};
+			std::array<xed::reg_t, 18> used_reg_repl = {};
 
 			static constexpr auto reg_to_id = [ ] ( xed::reg_t k ) FORCE_INLINE -> int {
 				if ( XED_REG_GPR64_FIRST <= k && k <= XED_REG_GPR64_LAST ) {
@@ -137,14 +137,14 @@ namespace xxed
 
 			auto find_used_reg = [ & ]( xed::reg_t kr ) FORCE_INLINE -> xed::reg_t* {
 				int k = reg_to_id( kr );
-				if ( k > 0 && xstd::bit_test( used_reg_mask, k ) ) {
+				if ( k > 0 && k < used_reg_repl.size() && xstd::bit_test( used_reg_mask, k ) ) {
 					return &used_reg_repl[ k ];
 				}
 				return nullptr;
 			};
 			auto set_used_reg = [ & ]( xed::reg_t kr, xed::reg_t v ) FORCE_INLINE {
 				int k = reg_to_id( kr );
-				if ( k < 0 ) return;
+				if ( k < 0 || k >= used_reg_repl.size()) return;
 				if ( v == XED_REG_INVALID ) {
 					xstd::bit_reset( used_reg_mask, k );
 				} else {
